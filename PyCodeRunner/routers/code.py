@@ -8,6 +8,11 @@ router = APIRouter()
 
 @router.get("/codes/")
 async def execution_code(request: ModelCode):
-    runner = PyCodeCore(request.code)
+    runner = PyCodeCore(
+        request.functionName,
+        request.function,
+        request.outputType,
+        request.tests,
+    )
 
     return {"result": runner.exec()}
