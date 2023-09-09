@@ -1,168 +1,65 @@
+from typing import Dict
+
+from ..error import TestCaseException
+
+
 class PyCodeCore:
-    def __init__(self, code: str):
-        self.__code = code
-        self.allowed_builtins = {
-            "__builtins__": {
-                "__package__": "",
-                "abs": abs,
-                "all": all,
-                "any": any,
-                "ascii": ascii,
-                "bin": bin,
-                "chr": chr,
-                "delattr": delattr,
-                "dir": dir,
-                "divmod": divmod,
-                "format": format,
-                "getattr": getattr,
-                "globals": globals,
-                "hasattr": hasattr,
-                "hash": hash,
-                "hex": hex,
-                "id": id,
-                "input": input,
-                "isinstance": isinstance,
-                "issubclass": issubclass,
-                "iter": iter,
-                "aiter": aiter,
-                "len": len,
-                "locals": locals,
-                "max": max,
-                "min": min,
-                "next": next,
-                "anext": anext,
-                "oct": oct,
-                "ord": ord,
-                "pow": pow,
-                "print": print,
-                "repr": repr,
-                "round": round,
-                "setattr": setattr,
-                "sorted": sorted,
-                "sum": sum,
-                "vars": vars,
-                "None": None,
-                "Ellipsis": Ellipsis,
-                "NotImplemented": NotImplemented,
-                "False": False,
-                "True": True,
-                "bool": bool,
-                "memoryview": memoryview,
-                "bytearray": bytearray,
-                "bytes": bytes,
-                "classmethod": classmethod,
-                "complex": complex,
-                "dict": dict,
-                "enumerate": enumerate,
-                "filter": filter,
-                "float": float,
-                "frozenset": frozenset,
-                "property": property,
-                "int": int,
-                "list": list,
-                "map": map,
-                "object": object,
-                "range": range,
-                "reversed": reversed,
-                "set": set,
-                "slice": slice,
-                "staticmethod": staticmethod,
-                "str": str,
-                "super": super,
-                "tuple": tuple,
-                "type": type,
-                "zip": zip,
-                "__debug__": True,
-                "BaseException": BaseException,
-                "Exception": Exception,
-                "TypeError": TypeError,
-                "StopAsyncIteration": StopAsyncIteration,
-                "StopIteration": StopIteration,
-                "GeneratorExit": GeneratorExit,
-                "SystemExit": SystemExit,
-                "KeyboardInterrupt": KeyboardInterrupt,
-                "ImportError": ImportError,
-                "ModuleNotFoundError": ModuleNotFoundError,
-                "OSError": OSError,
-                "EnvironmentError": OSError,
-                "IOError": OSError,
-                "EOFError": EOFError,
-                "RuntimeError": RuntimeError,
-                "RecursionError": RecursionError,
-                "NotImplementedError": NotImplementedError,
-                "NameError": NameError,
-                "UnboundLocalError": UnboundLocalError,
-                "AttributeError": AttributeError,
-                "SyntaxError": SyntaxError,
-                "IndentationError": IndentationError,
-                "TabError": TabError,
-                "LookupError": LookupError,
-                "IndexError": IndexError,
-                "KeyError": KeyError,
-                "ValueError": ValueError,
-                "UnicodeError": UnicodeError,
-                "UnicodeEncodeError": UnicodeEncodeError,
-                "UnicodeDecodeError": UnicodeDecodeError,
-                "UnicodeTranslateError": UnicodeTranslateError,
-                "AssertionError": AssertionError,
-                "ArithmeticError": ArithmeticError,
-                "FloatingPointError": FloatingPointError,
-                "OverflowError": OverflowError,
-                "ZeroDivisionError": ZeroDivisionError,
-                "SystemError": SystemError,
-                "ReferenceError": ReferenceError,
-                "MemoryError": MemoryError,
-                "BufferError": BufferError,
-                "Warning": Warning,
-                "UserWarning": UserWarning,
-                "EncodingWarning": EncodingWarning,
-                "DeprecationWarning": DeprecationWarning,
-                "PendingDeprecationWarning": PendingDeprecationWarning,
-                "SyntaxWarning": SyntaxWarning,
-                "RuntimeWarning": RuntimeWarning,
-                "FutureWarning": FutureWarning,
-                "ImportWarning": ImportWarning,
-                "UnicodeWarning": UnicodeWarning,
-                "BytesWarning": BytesWarning,
-                "ResourceWarning": ResourceWarning,
-                "ConnectionError": ConnectionError,
-                "BlockingIOError": BlockingIOError,
-                "BrokenPipeError": BrokenPipeError,
-                "ChildProcessError": ChildProcessError,
-                "ConnectionAbortedError": ConnectionAbortedError,
-                "ConnectionRefusedError": ConnectionRefusedError,
-                "ConnectionResetError": ConnectionResetError,
-                "FileExistsError": FileExistsError,
-                "FileNotFoundError": FileNotFoundError,
-                "IsADirectoryError": IsADirectoryError,
-                "NotADirectoryError": NotADirectoryError,
-                "InterruptedError": InterruptedError,
-                "PermissionError": PermissionError,
-                "ProcessLookupError": ProcessLookupError,
-                "TimeoutError": TimeoutError,
-            }
-        }
+    def __init__(
+        self,
+        function_name: str,
+        function: str,
+        output_type: str,
+        tests: Dict[str, str],
+    ):
+        """Criação do Core da execução de códigos escritos em Python.
+
+        Args:
+            function_name (str): Nome da função a ser executada.
+            function (str): Texto da função a ser executada.
+            output_type (str): Tipo da saída da função.
+            tests (Dict[str, str]): Dicionário de teste onde as chaves são os
+                valores de entrada da função e seu valor correspondente o
+                output da entrada.
+
+        Example:
+            >>> function = '''
+            ... def _sum(*args):
+            ...     return sum(args)
+            ... '''
+            >>> tests = {'1, 2, 3': '6'}
+            >>> PyCodeCore('_sum', function, 'int', tests).exec()
+            ... True
+        """
+
+        self.__fn_name = function_name
+        self.__function = function
+        self.__out_type = eval(
+            output_type,
+            {
+                "__builtins__": {
+                    "bool": bool,
+                    "float": float,
+                    "int": int,
+                    "str": str,
+                },
+            },
+        )
+        self.__tests = tests
 
     def exec(self):
-        namespace = {}
-
         try:
-            exec(self.__code, self.allowed_builtins, namespace)
+            for index, (inp, out) in enumerate(self.__tests.items()):
+                namespace = {}
+                exec(self.__function, namespace)
+                inp = tuple(
+                    _arg if (_arg := arg.strip()).isalpha() else float(_arg)
+                    for arg in inp.split(",")
+                )
+                if str(self.__out_type(namespace[self.__fn_name](*inp))) != out:
+                    raise TestCaseException(f"Erro no caso de teste {index + 1}")
+
         except Exception as err:
+            print(err.__class__)
             return f"{err}"
 
-        if "test" not in namespace:
-            return None
-
-        function = namespace["test"]
-        return function()
-
-
-# 'eval': eval(source, globals=None, locals=None, /),
-# 'exec': exec(source, globals=None, locals=None, /),
-# '__loader__': _frozen_importlib.BuiltinImporter,
-# '__spec__': ModuleSpec,
-# '__import__': import,
-# 'breakpoint': breakpoint,
-# 'callable': callable(obj, /),
-# 'compile': compile,
+        return True
