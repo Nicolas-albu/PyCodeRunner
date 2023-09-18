@@ -1,5 +1,5 @@
 import re
-from typing import Dict
+from typing import Dict, Optional
 
 from pydantic import BaseModel, validator
 
@@ -8,7 +8,7 @@ class ModelCode(BaseModel):
     functionName: str = "main"
     function: str
     outputType: str
-    tests: Dict[str, str]
+    tests: Optional[Dict[str, str]] = None
 
     @validator("function")
     def contain(cls, _function_value: str) -> str:
