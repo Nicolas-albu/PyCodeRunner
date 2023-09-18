@@ -2,7 +2,7 @@
 name = "pycoderunner"
 version = "0.1.0"
 description = ""
-authors = ["Nicolas Albuquerque Ramos <nicolasalbuquerque581@gmail.com>"]
+authors = ["Nícolas Albuquerque Ramos <nar1@aluno.ifal.edu.br>"]
 license = "Apache 2.0"
 readme = "README.md"
 
