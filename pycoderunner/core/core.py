@@ -1,4 +1,4 @@
-from typing import Dict, Type
+from typing import Dict
 
 from ..error import TestCaseException
 
@@ -8,7 +8,6 @@ class PyCodeCore:
         self,
         function_name: str,
         function: str,
-        output_type: str,
         tests: Dict[str, str] | None,
     ):
         """Criação do Core da execução de códigos escritos em Python.
@@ -33,21 +32,7 @@ class PyCodeCore:
 
         self.__fn_name = function_name
         self.__function = function
-        self.__out_type = self._get_type(output_type)
         self.__tests = tests
-
-    @staticmethod
-    def _get_type(type_name: str) -> Type:
-        type_mapping = {
-            "tuple": tuple,
-            "float": float,
-            "list": list,
-            "dict": dict,
-            "bool": bool,
-            "str": str,
-            "int": int,
-        }
-        return type_mapping.get(type_name, str)
 
     @classmethod
     def convert_type(cls, value: str):
@@ -139,7 +124,7 @@ class PyCodeCore:
                     # Gets the execution result
                     result = namespace[self.__fn_name](*arguments)
 
-                    if str(self.__out_type(result)) != output:
+                    if str(result) != output:
                         message = f"Erro no caso de teste {index + 1}"
                         raise TestCaseException(message)
             else:
