@@ -1,3 +1,7 @@
-from .model_code import ModelCode
+from .run_code import ModelRunCode
+from .run_tests import ModelRunWithTests
 
-__all__ = ["ModelCode"]
+__all__ = [
+    "ModelRunCode",
+    "ModelRunWithTests",
+]

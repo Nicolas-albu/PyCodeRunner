@@ -1,13 +1,13 @@
 import re
-from typing import Dict, Optional
+from typing import Any, List
 
 from pydantic import BaseModel, validator
 
 
-class ModelCode(BaseModel):
-    functionName: str = "main"
+class ModelRunCode(BaseModel):
+    functionName: str
     function: str
-    tests: Optional[Dict[str, str]] = None
+    argument: List[Any]
 
     @validator("function")
     def contain(cls, _function_value: str) -> str:
