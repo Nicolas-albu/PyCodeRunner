@@ -6,12 +6,11 @@ from ..models import ModelCode
 router = APIRouter()
 
 
-@router.get("/codes/")
+@router.post("/codes/")
 async def execution_code(request: ModelCode):
     runner = PyCodeCore(
         request.functionName,
         request.function,
-        request.outputType,
         request.tests,
     )
 
