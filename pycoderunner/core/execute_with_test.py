@@ -1,14 +1,14 @@
-from typing import Dict
+from typing import Dict, List
 
 from ..error import TestCaseException
 
 
-class PyCodeCore:
+class PyExecuteWithTests:
     def __init__(
         self,
         function_name: str,
         function: str,
-        tests: Dict[str, str] | None,
+        tests: List[Dict[str, str]],
     ):
         """Criação do Core da execução de códigos escritos em Python.
 
@@ -50,7 +50,7 @@ class PyCodeCore:
             try:
                 return int(value)
             except ValueError:
-                pass
+                ...
 
         # Check for boolean values
         elif value.lower() == "true":
@@ -103,16 +103,18 @@ class PyCodeCore:
         # Return the original value if no conversion succeeds
         return value
 
-    def exec(self):
+    def exec(self) -> bool | str:
         try:
-            if self.__tests:
-                for index, (_input, output) in enumerate(self.__tests.items()):
-                    # Create a code object
-                    code_obj = compile(self.__function, "<string>", "exec")
+            # Create a code object
+            code_obj = compile(self.__function, "<string>", "exec")
 
-                    # Execute the code within a namespace
-                    namespace = {}
-                    exec(code_obj, namespace)
+            # Execute the code within a namespace
+            namespace = {}
+            exec(code_obj, namespace)
+
+            if self.__tests:
+                for index, test in enumerate(self.__tests):
+                    _input, output = [*test.items()][0]
 
                     # Split the input by commas and strip whitespace
                     _input = _input.split(",")
@@ -128,12 +130,6 @@ class PyCodeCore:
                         message = f"Erro no caso de teste {index + 1}"
                         raise TestCaseException(message)
             else:
-                # Create a code object
-                code_obj = compile(self.__function, "<string>", "exec")
-
-                # Execute the code within a namespace
-                namespace = {}
-                exec(code_obj, namespace)
                 return namespace[self.__fn_name]()
 
         except Exception as err:
