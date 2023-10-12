@@ -7,7 +7,6 @@ from pydantic import BaseModel, validator
 class ModelCode(BaseModel):
     functionName: str = "main"
     function: str
-    outputType: str
     tests: Optional[Dict[str, str]] = None
 
     @validator("function")
@@ -23,4 +22,5 @@ class ModelCode(BaseModel):
             _builtins_pattern, _function_value
         ):
             raise ValueError()
+
         return _function_value
